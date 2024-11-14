@@ -58,9 +58,8 @@ class HandDetector:
         return False
 
 def main():
-    cap = cv2.VideoCapture("handtracker.mp4")
+    cap = cv2.VideoCapture(0)
     detector = HandDetector()
-    prev_time = 0
     last_check_time = time.time()
     
     left_thumb_up_prev, right_thumb_up_prev = False, False
@@ -93,25 +92,25 @@ def main():
 
         # Verifica se já passou 1 segundo desde a última detecção
         if time.time() - last_check_time > 1:
-            # Rotaciona a peça (W) - ambos os polegares mudam de estado
-            if left_thumb_up != left_thumb_up_prev and right_thumb_up != right_thumb_up_prev:
+            # Rotaciona a peça (W) - ambos os polegares mudam de aberto para fechado
+            if (left_thumb_up_prev and right_thumb_up_prev) and not (left_thumb_up or right_thumb_up):
                 pyautogui.press('w')
 
-            # Move a peça para a esquerda (A) - mudança do polegar esquerdo
-            elif left_thumb_up != left_thumb_up_prev:
+            # Move a peça para a esquerda (A) - mudança do polegar esquerdo de aberto para fechado
+            elif left_thumb_up_prev and not left_thumb_up:
                 pyautogui.press('a')
 
-            # Move a peça para a direita (D) - mudança do polegar direito
-            elif right_thumb_up != right_thumb_up_prev:
+            # Move a peça para a direita (D) - mudança do polegar direito de aberto para fechado
+            elif right_thumb_up_prev and not right_thumb_up:
                 pyautogui.press('d')
 
-            # Aumenta a velocidade de queda da peça (S) - mudança em qualquer indicador
-            elif left_index_open != left_index_open_prev or right_index_open != right_index_open_prev:
+            # Aumenta a velocidade de queda da peça (S) - mudança de qualquer indicador de aberto para fechado
+            elif (left_index_open_prev and not left_index_open) or (right_index_open_prev and not right_index_open):
                 pyautogui.press('s')
 
-            # Derruba a peça direto (Barra de espaço) - ambos indicadores e polegares mudam de estado
-            if (left_thumb_up != left_thumb_up_prev and right_thumb_up != right_thumb_up_prev and 
-                left_index_open != left_index_open_prev and right_index_open != right_index_open_prev):
+            # Derruba a peça direto (Barra de espaço) - todos os indicadores e polegares mudam de aberto para fechado
+            if (left_thumb_up_prev and right_thumb_up_prev and left_index_open_prev and right_index_open_prev and
+                not (left_thumb_up or right_thumb_up or left_index_open or right_index_open)):
                 pyautogui.press('space')
 
             # Atualiza os estados dos dedos
@@ -121,9 +120,9 @@ def main():
             last_check_time = time.time()  # Reseta o temporizador para verificar novamente em 1 segundo
 
         # Exibe os estados na imagem
-        cv2.putText(image, f'Polegar Esq: {"True" if left_thumb_up else "False"}', (10, 100),
+        cv2.putText(image, f'Polegar Esq: {"Aberto" if left_thumb_up else "Fechado"}', (10, 100),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-        cv2.putText(image, f'Polegar Dir: {"True" if right_thumb_up else "False"}', (10, 130),
+        cv2.putText(image, f'Polegar Dir: {"Aberto" if right_thumb_up else "Fechado"}', (10, 130),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
         
         cv2.putText(image, f'Indicador Esq: {"Aberto" if left_index_open else "Fechado"}', (10, 180),
