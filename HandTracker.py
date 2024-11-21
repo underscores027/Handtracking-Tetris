@@ -91,42 +91,33 @@ def main():
                     right_thumb_up = detector.is_thumb_up(lm_list)
 
         # Verifica se já passou 1 segundo desde a última detecção
+        if time.time() - last_check_time > 1:
             # Rotaciona a peça (W) - ambos os polegares mudam de aberto para fechado
-        if (right_index_open_prev and not right_index_open):
-            # pyautogui.press('w')
-            pyautogui.keyDown('w')
-            pyautogui.keyUp('w')
+            if (left_thumb_up_prev and right_thumb_up_prev) and not (left_thumb_up or right_thumb_up):
+                pyautogui.press('w')
 
-        # Move a peça para a esquerda (A) - mudança do polegar esquerdo de aberto para fechado
-        if left_thumb_up_prev and not left_thumb_up:
-            # pyautogui.keyUp('a')
-            pyautogui.keyDown('a')
-            pyautogui.keyUp('a')
+            # Move a peça para a esquerda (A) - mudança do polegar esquerdo de aberto para fechado
+            elif left_thumb_up_prev and not left_thumb_up:
+                pyautogui.press('a')
 
-        # Move a peça para a direita (D) - mudança do polegar direito de aberto para fechado
-        if right_thumb_up_prev and not right_thumb_up:
-            # pyautogui.keyUp('d')
-            pyautogui.keyDown('d')
-            pyautogui.keyUp('d')
+            # Move a peça para a direita (D) - mudança do polegar direito de aberto para fechado
+            elif right_thumb_up_prev and not right_thumb_up:
+                pyautogui.press('d')
 
-        # Aumenta a velocidade de queda da peça (S) - mudança de qualquer indicador de aberto para fechado
-        if (left_index_open_prev and not left_index_open):
-            # pyautogui.keyUp('s')
-            pyautogui.keyDown('s')
-            pyautogui.keyUp('s')
+            # Aumenta a velocidade de queda da peça (S) - mudança de qualquer indicador de aberto para fechado
+            elif (left_index_open_prev and not left_index_open) or (right_index_open_prev and not right_index_open):
+                pyautogui.press('s')
 
-        # Derruba a peça direto (Barra de espaço) - todos os indicadores e polegares mudam de aberto para fechado
-        # if (left_thumb_up_prev and right_thumb_up_prev and left_index_open_prev and right_index_open_prev and
-        #     not (left_thumb_up or right_thumb_up or left_index_open or right_index_open)):
-        #     # pyautogui.keyUp('space')
-        #     pyautogui.keyDown('space')
-        #     pyautogui.keyUp('space')
+            # Derruba a peça direto (Barra de espaço) - todos os indicadores e polegares mudam de aberto para fechado
+            if (left_thumb_up_prev and right_thumb_up_prev and left_index_open_prev and right_index_open_prev and
+                not (left_thumb_up or right_thumb_up or left_index_open or right_index_open)):
+                pyautogui.press('space')
 
-        # Atualiza os estados dos dedos
-        left_thumb_up_prev, right_thumb_up_prev = left_thumb_up, right_thumb_up
-        left_index_open_prev, right_index_open_prev = left_index_open, right_index_open
+            # Atualiza os estados dos dedos
+            left_thumb_up_prev, right_thumb_up_prev = left_thumb_up, right_thumb_up
+            left_index_open_prev, right_index_open_prev = left_index_open, right_index_open
 
-            # last_check_time = time.time()  # Reseta o temporizador para verificar novamente em 1 segundo
+            last_check_time = time.time()  # Reseta o temporizador para verificar novamente em 1 segundo
 
         # Exibe os estados na imagem
         cv2.putText(image, f'Polegar Esq: {"Aberto" if left_thumb_up else "Fechado"}', (10, 100),
